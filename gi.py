@@ -2,23 +2,30 @@
 gi: gltf inspector
 '''
 import sys
+import pathlib
+from logging import getLogger
+#from typing import Tuple, Any
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QAction, QStyle, QFileDialog
 #from PyQt5.QtGui import QIcon
+
+LOGGER = getLogger(__name__)
 
 
 class Scene:
     def __init__(self):
         pass
 
-    def load(self, path: str):
-        print(path)
+    def load(self, path: pathlib.Path):
+        ext = path.suffix.lower()
+        if ext == '.gltf':
+            print('.gltf')
+        elif ext == '.glb':
+            print('.glb')
+        else:
+            LOGGER.error(f'unknwon type: {path}')
 
 
 class MainWindow(QMainWindow):
-    '''
-    MainWindow
-    '''
-
     def __init__(self)->None:
         super().__init__()
 
@@ -38,6 +45,14 @@ class MainWindow(QMainWindow):
 
 
 def main()->None:
+    LOGGER.debug('before')
+    from logging import basicConfig, DEBUG
+    basicConfig(
+        level=DEBUG,
+        datefmt='%H:%M:%S',
+        format='%(asctime)s[%(levelname)s][%(name)s.%(funcName)s] %(message)s'
+    )
+
     scene = Scene()
 
     app = QApplication(sys.argv)
@@ -53,8 +68,8 @@ def main()->None:
 
     def on_open():
         path, _ = QFileDialog.getOpenFileName(
-            window, 'Open file', './', 'Model Files(*.gltf *.glb)')
-        scene.load(path)
+            window, 'Open file', None, 'Model Files(*.gltf *.glb)' ';;All Files(*.*)')
+        scene.load(pathlib.Path(path))
     open_action.triggered.connect(on_open)
     window.file_menu_add_action(open_action)
 
